@@ -35,7 +35,7 @@ use std::mem;
 /// /pools of connections to cluster nodes which are used to query the cluster.
 ///
 /// Instances of the session object are thread-safe to execute queries.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Session(pub *mut _Session);
 
 // The underlying C type has no thread-local state, and explicitly supports access
