@@ -48,6 +48,7 @@ use cassandra_sys::cass_cluster_set_write_bytes_low_water_mark;
 use cassandra_sys::cass_false;
 use cassandra_sys::cass_future_error_code;
 use cassandra_sys::cass_session_connect;
+use cassandra_sys::cass_session_connect_keyspace;
 use cassandra_sys::cass_session_new;
 use cassandra_sys::cass_true;
 
@@ -154,6 +155,17 @@ impl Cluster {
         unsafe {
             let session = Session(cass_session_new());
             let connect_future = <CassFuture<()>>::build(cass_session_connect(session.0, self.0));
+            connect_future.wait().map(|_| session)
+        }
+    }
+
+    /// Performs a blocking call to connect to Cassandra cluster with keyspace
+    pub fn connect_keyspace(&mut self, keyspace: &str) -> Result<Session> {
+        unsafe {
+            let session = Session(cass_session_new());
+            let keyspace_cstr = CString::new(keyspace)?;
+            let connect_future =
+                <CassFuture<()>>::build(cass_session_connect_keyspace(session.0, self.0, keyspace_cstr.as_ptr()));
             connect_future.wait().map(|_| session)
         }
     }
